@@ -100,23 +100,21 @@ impl MyApp {
 
     fn re_new(&mut self) {
         // 壁で埋めた迷路領域を作成
-        let height = self.maze[0].len();
-        let width = self.maze.len();
 
-        self.maze = vec![vec![Cell::Wall; height]; width];
+        self.maze = vec![vec![Cell::Wall; self.height]; self.width];
 
-        println!("({}, {})", self.maze.len(), self.maze[0].len());
+        println!("({}, {})", self.width, self.height);
 
         // 外側を道で埋める（上下辺）
-        for x in 0..width {
+        for x in 0..self.width {
             self.maze[x][0] = Cell::Way;
-            self.maze[x][height - 1] = Cell::Way;
+            self.maze[x][self.height - 1] = Cell::Way;
         }
 
         // 外側を道で埋める（左右辺）
-        for y in 0..height {
+        for y in 0..self.height {
             self.maze[0][y] = Cell::Way;
-            self.maze[width - 1][y] = Cell::Way;
+            self.maze[self.width - 1][y] = Cell::Way;
         }
 
         self.make_maze();
@@ -127,8 +125,8 @@ impl MyApp {
     /// 迷路内の道を作るための起点をすべて列挙する。
     fn list_xy(&self) -> Vec<(usize, usize)> {
         let mut xy = Vec::new();
-        for x in (2..self.maze.len() - 2).step_by(2) {
-            for y in (2..self.maze[x].len() - 2).step_by(2) {
+        for x in (2..self.width - 2).step_by(2) {
+            for y in (2..self.height - 2).step_by(2) {
                 if self.maze[x][y] == Cell::Way {
                     for (dx, dy) in vec![(1, 0), (-1, 0), (0, 1), (0, -1)] {
                         if self.maze[(x as i32 + 2 * dx) as usize][(y as i32 + 2 * dy) as usize]
@@ -149,10 +147,10 @@ impl MyApp {
         let mut old_v = None;
         let mut v;
 
-        let l = if self.maze.len() > self.maze[0].len() {
-            self.maze.len()
+        let l = if self.width > self.height {
+            self.width
         } else {
-            self.maze[0].len()
+            self.height
         };
         let l = self.rng.gen_range(1..(l / 3) + 1) + 1;
         for _ in 0..l {
@@ -242,8 +240,8 @@ impl MyApp {
             self.make_way(x, y);
         }
 
-        let x = self.maze.len() - 3;
-        let y = self.maze[0].len() - 3;
+        let x = self.width - 3;
+        let y = self.height - 3;
         self.maze[x][y] = Cell::Goal;
 
         // println!("Goal ({}, {})", x, y);
@@ -324,8 +322,8 @@ impl MyApp {
 
     fn draw_maze(&self) -> Vec<Shape> {
         let mut shapes = Vec::new();
-        for x in 1..self.maze.len() - 1 {
-            for y in 1..self.maze[x].len() - 1 {
+        for x in 1..self.width - 1 {
+            for y in 1..self.height - 1 {
                 let rect = self.rect_from_min_size(x, y);
 
                 self.rect_fill(&mut shapes, rect, &self.maze[x][y]);
